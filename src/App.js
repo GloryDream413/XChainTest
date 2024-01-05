@@ -1,12 +1,41 @@
 import logo from './logo.svg';
 import './App.css';
-import { SwapKitCore, Chain } from '@swapkit/core';
-import { walletconnectWallet } from '@swapkit/wallet-wc';
+import { SwapKitCore, Chain, WalletOption } from '@swapkit/core';
+import { evmWallet } from '@swapkit/wallet-evm-extensions';
 
 const client = new SwapKitCore();
-client.extend({ wallets: [walletconnectWallet] });
+client.extend({ 
+  config: {
+    stagenet: false,
+    /**
+     * @required for AVAX, BSC, ARB, MATIC & OP
+     */
+    covalentApiKey: "string",
+    /**
+     * @required for ETH
+     */
+    ethplorerApiKey: "string",
+    /**
+     * @required for BTC, LTC, DOGE & BCH
+     */
+    utxoApiKey: "string",
+    /**
+     * @required for Walletconnect
+     */
+    walletConnectProjectId: "string",
+    /**
+     * @optional for Trezor config
+     */
+    trezorManifest: {
+        email: "glorydream413@gmail.com",
+        appUrl: "string"
+    }
+  },
+  wallets: [evmWallet] 
+});
 
-await client.connectWalletconnect([Chain.ETH], { options: {}, listeners: {} })
+// WalletOption.BRAVE | WalletOption.METAMASK | WalletOption.TRUSTWALLET_WEB | WalletOption.COINBASE_WEB
+await client.connectEVMWallet([Chain.ETH], WalletOption.METAMASK)
 
 function App() {
   return (
