@@ -1,5 +1,6 @@
 import logo from './logo.svg';
 import './App.css';
+import { SwapKitApi, FeeOption  } from '@swapkit/sdk'
 import { SwapKitCore, Chain, WalletOption } from '@swapkit/core';
 import { evmWallet } from '@swapkit/wallet-evm-extensions';
 
@@ -35,7 +36,28 @@ client.extend({
 });
 
 // WalletOption.BRAVE | WalletOption.METAMASK | WalletOption.TRUSTWALLET_WEB | WalletOption.COINBASE_WEB
-await client.connectEVMWallet([Chain.ETH], WalletOption.METAMASK)
+await client.connectEVMWallet([Chain.Ethereum], WalletOption.METAMASK)
+
+const quoteParams = {
+  sellAsset: 'BTC.BTC',
+  sellAmount: '1',
+  buyAsset: 'ETH.ETH',
+  senderAddress: '0xB3C70a7f88ac8D0F12F21c192dD86Dae5957BCaA', // A valid Ethereum address
+  recipientAddress: '0xB3C70a7f88ac8D0F12F21c192dD86Dae5957BCaA', // A valid Bitcoin address
+  slippage: '3',
+};
+
+const { routes } = await SwapKitApi.getQuote(quoteParams);
+const bestRoute = routes.find(({ optimal }) => optimal)
+const txHash = await client.swap({
+  route: bestRoute,
+  recipient: '0xB3C70a7f88ac8D0F12F21c192dD86Dae5957BCaA',
+  feeOptionKey: FeeOption.Fast
+  // FeeOption multiplies current base fee by:
+  // Average => 1.2 
+  // Fast => 1.5
+  // Fastest => 2
+});
 
 function App() {
   return (
